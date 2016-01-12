@@ -1,6 +1,7 @@
 #!/bin/bash -eux
 
 sed -i "s/##DB_PASS##/${DB_ENV_MYSQL_PASSWORD}/" /etc/dovecot/dovecot-sql.conf.ext
+sed -i "s/##HOSTNAME##/${HOSTNAME}/" /etc/dovecot/conf.d/99-local-lmtp.conf
 
 /opt/editconf.py /etc/dovecot/conf.d/15-lda.conf postmaster_address=postmaster@${HOSTNAME}
 
