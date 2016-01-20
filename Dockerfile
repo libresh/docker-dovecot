@@ -53,7 +53,7 @@ RUN groupadd -g 999 postfix \
 
 ENTRYPOINT ["/startup.sh"]
 
-VOLUME ["/var/spool/postfix/dovecot", "/mail"]
+VOLUME ["/mail"]
 
 EXPOSE 993
 
