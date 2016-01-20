@@ -6,6 +6,8 @@ RUN apt-get update \
       dovecot-imapd \
       dovecot-lmtpd \
       dovecot-mysql \
+      dovecot-sieve \
+      dovecot-managesieved \
  && rm -rf /var/lib/apt/lists/*
 
 COPY 99-local-lmtp.conf /etc/dovecot/conf.d/99-local-lmtp.conf
@@ -13,6 +15,11 @@ COPY auth-sql.conf.ext /etc/dovecot/conf.d/auth-sql.conf.ext
 COPY dovecot-sql.conf.ext /etc/dovecot/dovecot-sql.conf.ext 
 COPY 99-local-auth.conf /etc/dovecot/conf.d/99-local-auth.conf
 COPY startup.sh /startup.sh
+COPY 15-mailboxes.conf /etc/dovecot/conf.d/15-mailboxes.conf
+COPY sieve-spam.sieve /etc/dovecot/sieve-spam.sieve
+COPY 99-local-sieve.conf /etc/dovecot/conf.d/99-local-sieve.conf
+
+RUN sievec /etc/dovecot/sieve-spam.sieve
 
 RUN groupadd -g 999 postfix \
  && useradd -r -g 999 -u 999 postfix \
@@ -39,6 +46,7 @@ RUN groupadd -g 999 postfix \
  && sed -i "s/#port = 110/port = 0/" /etc/dovecot/conf.d/10-master.conf \
  && sed -i "s/#*\(\!include auth-system.conf.ext\)/#\1/"  /etc/dovecot/conf.d/10-auth.conf \
  && sed -i "s/#\(\!include auth-sql.conf.ext\)/\1/"  /etc/dovecot/conf.d/10-auth.conf \
+ && sed -i "s/#mail_plugins = .*/mail_plugins = \$mail_plugins sieve/" /etc/dovecot/conf.d/20-lmtp.conf \
  && chown -R mail:dovecot /etc/dovecot \
  && chmod -R o-rwx /etc/dovecot \
  && chmod 0600 /etc/dovecot/dovecot-sql.conf.ext
