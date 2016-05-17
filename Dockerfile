@@ -6,6 +6,7 @@ RUN apt-get update \
       dovecot-imapd \
       dovecot-lmtpd \
       dovecot-mysql \
+      dovecot-pop3d \
       dovecot-sieve \
       dovecot-managesieved \
  && rm -rf /var/lib/apt/lists/*
@@ -40,6 +41,8 @@ RUN groupadd -g 999 postfix \
     'ssl_key=</ssl/ssl_private_key.pem' \
     'ssl_protocols=!SSLv3 !SSLv2' \
     'ssl_cipher_list=TLSv1+HIGH !SSLv2 !RC4 !aNULL !eNULL !3DES @STRENGTH' \
+ && /opt/editconf.py /etc/dovecot/conf.d/20-pop3.conf \
+    pop3_uidl_format="%08Xu%08Xv" \
  && /opt/editconf.py /etc/dovecot/conf.d/20-imap.conf \
     imap_idle_notify_interval="4 mins" \
  && sed -i "s/#port = 143/port = 0/" /etc/dovecot/conf.d/10-master.conf \
@@ -55,5 +58,4 @@ ENTRYPOINT ["/startup.sh"]
 
 VOLUME ["/mail"]
 
-EXPOSE 993
-
+EXPOSE 993 995
